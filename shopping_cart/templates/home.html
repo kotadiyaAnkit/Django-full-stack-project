@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Home Page</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+
+  <nav>
+    <a href="{% url 'recipes' %}">home</a>
+    <a href="{% url 'product_list' %}">Product</a>
+    <a href="{% url 'about' %}">about</a>
+    <a href="{% url 'logout' %}">Logout</a>
+  </nav>
+<section class="slider">
+  <div class="slide-container">
+    <img src="{% static 'images/istockphoto-1343563115-2048x2048.jpg' %}" alt="Slide 1">
+    <img src="{% static 'images/photo-1511707171634-5f897ff02aa9.avif' %}" alt="Slide 2">
+    <img src="{% static 'images/photo-1523206489230-c012c64b2b48.avif' %}" alt="Slide 3">
+  </div>
+</section>
+  <!-- <section id="home">
+    <h1>Welcome to Our Home Page</h1>
+  </section> -->
+  <section id="featured-products">
+  <h2>Featured Products</h2>
+
+  {% for product in products %}
+    <div class="product-card">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">
+      {% endif %}
+      <h3>{{ product.name }}</h3>
+      <p>₹{{ product.price }}</p>
+      <a href="{% url 'product_detail' product.pk %}">View Details</a>
+    </div>
+  {% empty %}
+    <p>No products available.</p>
+  {% endfor %}
+</section>
+
+
+  <footer>
+  <p>&copy; 2025 Your Company. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

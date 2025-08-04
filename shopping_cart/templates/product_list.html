@@ -1,0 +1,42 @@
+<!-- shopping_cart/templates/shopping_cart/product_list.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List</title>
+       <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <a href="{% url 'recipes' %}">Home</a>
+     <a href="{% url 'about' %}">about</a>
+    <a href="{% url 'product_list' %}">Product</a>
+    <a href="{% url 'logout' %}">Logout</a>
+
+    <h1>Product List</h1>
+
+    {% for product in products %}
+        <div>
+                 <!-- 👇 Display Product Image -->
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">
+            {% else %}
+                <p>No image available.</p>
+            {% endif %}
+            <h2>{{ product.name }}</h2>
+            <p>Price: ₹{{ product.price }}</p>
+            <p>{{ product.description }}</p>
+            
+       
+            
+            <a href="{% url 'product_detail' product.pk %}">View Details</a>
+            <a href="{% url 'add_to_cart' product.pk %}">Add to Cart</a>
+        </div>
+        <hr>
+    {% empty %}
+        <p>No products available.</p>
+    {% endfor %}
+
+    <a href="{% url 'view_cart' %}">Go to Cart</a>
+</body>
+</html>
