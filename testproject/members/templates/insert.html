@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Member</title>
+  <style>
+    div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 250px;
+    }
+    input {
+      width: 200px;
+      margin-bottom: 10px;
+    }
+    input:hover {
+      background-color: aqua;
+      font-size: large;
+    }
+    .form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .btn {
+      width: 200px;
+    }
+    .errorlist {
+      color: red;
+      list-style-type: none;
+      padding: 0;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <form method="post" action="{% url 'submit_member' %}">
+    {% csrf_token %}
+    <div>
+      {{ form.firstname }}
+      {{ form.lastname }}
+      {{ form.email }}
+      {{ form.phone }}
+
+      {% if form.errors %}
+        <ul class="errorlist">
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+              <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <input type="submit" value="Submit">
+    </div>
+  </form>
+
+  <form method="get" action="{% url 'show' %}" class="form">
+    <button type="submit" class="btn">Display</button>
+  </form>
+
+</body>
+</html>
