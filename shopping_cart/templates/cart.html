@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Your Cart</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Quantity</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in cart_items %}
+    <tr>
+      <td>{{ item.product.name }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>${{ item.product.price|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td colspan="2"><strong>Total</strong></td>
+      <td><strong>${{ total|floatformat:2 }}</strong></td>
+      <a href="{% url 'checkout' %}" class="btn btn-warning">Checkout</a>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Member</title>
+</head>
+<body>
+    <h2>Add New Member</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <!-- {{ form.as_p }}   Each field wrapped in <p> tags-->
+        <input type="submit" value="Submit">
+    </form>
+    <a href="{% url 'member_list' %}">View All Members</a>
+</body>
+</html>
