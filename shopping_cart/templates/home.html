@@ -1,49 +1,67 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Simple Home Page</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-</head>
-<body>
 
-  <nav>
-    <a href="{% url 'recipes' %}">home</a>
-    <a href="{% url 'product_list' %}">Product</a>
-    <a href="{% url 'about' %}">about</a>
-    <a href="{% url 'logout' %}">Logout</a>
-  </nav>
-<section class="slider">
-  <div class="slide-container">
-    <img src="{% static 'images/istockphoto-1343563115-2048x2048.jpg' %}" alt="Slide 1">
-    <img src="{% static 'images/photo-1511707171634-5f897ff02aa9.avif' %}" alt="Slide 2">
-    <img src="{% static 'images/photo-1523206489230-c012c64b2b48.avif' %}" alt="Slide 3">
-  </div>
-</section>
-  <!-- <section id="home">
-    <h1>Welcome to Our Home Page</h1>
-  </section> -->
-  <section id="featured-products">
-  <h2>Featured Products</h2>
+{% block title %}Home | MyShop{% endblock %}
 
-  {% for product in products %}
-    <div class="product-card">
-      {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">
-      {% endif %}
-      <h3>{{ product.name }}</h3>
-      <p>₹{{ product.price }}</p>
-      <a href="{% url 'product_detail' product.pk %}">View Details</a>
+{% block content %}
+<!-- Hero Section -->
+<div class="row align-items-center mb-5 mt-3">
+    <div class="col-md-6 mb-4 mb-md-0 position-relative z-1 text-center text-md-start">
+        <h1 class="display-3 fw-bold mb-3" style="color: var(--brand-color);">Discover Premium Quality</h1>
+        <p class="lead text-muted mb-4">Shop the latest trends and exclusive products delivered right to your door.</p>
+        <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow">Shop Now</a>
     </div>
-  {% empty %}
-    <p>No products available.</p>
-  {% endfor %}
-</section>
+    <div class="col-md-6">
+        <!-- Slider equivalent -->
+        <div id="heroCarousel" class="carousel slide carousel-fade shadow-lg rounded-4 overflow-hidden" data-bs-ride="carousel">
+            <div class="carousel-inner" style="height: 400px;">
+                <div class="carousel-item active h-100">
+                    <img src="{% static 'images/istockphoto-1343563115-2048x2048.jpg' %}" class="d-block w-100 h-100 object-fit-cover" alt="Slide 1" onerror="this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80'">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="{% static 'images/photo-1511707171634-5f897ff02aa9.avif' %}" class="d-block w-100 h-100 object-fit-cover" alt="Slide 2" onerror="this.src='https://images.unsplash.com/photo-1555529771-835f59fc5efe?auto=format&fit=crop&w=800&q=80'">
+                </div>
+                <div class="carousel-item h-100">
+                    <img src="{% static 'images/photo-1523206489230-c012c64b2b48.avif' %}" class="d-block w-100 h-100 object-fit-cover" alt="Slide 3" onerror="this.src='https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80'">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Featured Products -->
+<div class="row mb-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="fw-bold">Featured Products</h2>
+        <div class="mx-auto bg-primary rounded" style="width: 50px; height: 3px;"></div>
+    </div>
+</div>
 
-  <footer>
-  <p>&copy; 2025 Your Company. All rights reserved.</p>
-</footer>
-
-</body>
-</html>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    {% for product in products|slice:":4" %}
+    <div class="col">
+        <div class="card h-100 glass-card border-0">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top p-3 rounded" style="height: 200px; object-fit: contain;">
+            {% else %}
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                    <span class="text-muted"><i class="fa-regular fa-image fa-2x"></i></span>
+                </div>
+            {% endif %}
+            <div class="card-body text-center d-flex flex-column">
+                <h5 class="card-title fw-bold mb-1">{{ product.name }}</h5>
+                <p class="text-success fw-semibold mb-3">₹{{ product.price }}</p>
+                <div class="mt-auto">
+                    <a href="{% url 'product_detail' product.pk %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Details</a>
+                    <a href="{% url 'add_to_cart' product.pk %}" class="btn btn-primary btn-sm rounded-pill px-3 add-to-cart-btn"><i class="fa-solid fa-cart-shopping"></i> Add</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center text-muted">
+        <p>No featured products available.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

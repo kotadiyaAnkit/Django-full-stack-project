@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
-
-
+from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -17,10 +16,12 @@ from django.contrib.auth.decorators import login_required
 
 
 
+@login_required(login_url='/login/')
 def product_list(request):
     products = Product.objects.all()
     return render(request, 'product_list.html', {'products': products})
 
+@login_required(login_url='/login/')
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     return render(request, 'product_detail.html', {'product': product})
@@ -36,6 +37,11 @@ def add_to_cart(request, pk):
     if not created:
         cart_item.quantity += 1
         cart_item.save()
+        
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        cart_items_count = sum(item.quantity for item in CartItem.objects.filter(cart=cart))
+        return JsonResponse({'status': 'success', 'cart_items_count': cart_items_count})
+        
     return redirect('view_cart')
 
 @login_required
@@ -50,29 +56,62 @@ def checkout(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
     cart_items = CartItem.objects.filter(cart=cart)
     total = sum(item.product.price * item.quantity for item in cart_items)
+    
+    # Fetch payment settings for QR code
+    payment_settings = PaymentSettings.objects.first()
 
     if request.method == 'POST':
-        order = Order.objects.create(user=request.user, total_price=total)
+        person_name = request.POST.get('person_name', '')
+        phone_number = request.POST.get('phone_number', '')
+        pincode = request.POST.get('pincode', '')
+        delivery_address = request.POST.get('delivery_address', '')
+        payment_method = request.POST.get('payment_method', 'Offline')
+
+        # Verify stock availability before placing order
         for item in cart_items:
+            if item.product.stock_quantity < item.quantity:
+                messages.error(request, f"Sorry, only {item.product.stock_quantity} units of '{item.product.name}' are available.")
+                return redirect('checkout')
+
+        order = Order.objects.create(
+            user=request.user, 
+            total_price=total,
+            person_name=person_name,
+            phone_number=phone_number,
+            pincode=pincode,
+            delivery_address=delivery_address,
+            payment_method=payment_method
+        )
+        for item in cart_items:
+            # Deduct stock quantity
+            item.product.stock_quantity -= item.quantity
+            item.product.save()
+            
             order.products.add(item)
+            
         order.save()
         # Clear cart
         cart_items.delete()
+        
         return redirect('order_success')
 
-    return render(request, 'checkout.html', {'cart_items': cart_items, 'total': total})
+    return render(request, 'checkout.html', {'cart_items': cart_items, 'total': total, 'payment_settings': payment_settings})
 
 @login_required
 def order_success(request):
     return render(request, 'order_success.html')
 
 
+@login_required(login_url='/login/')
 def home(request):
     products = Product.objects.all()
     return render(request,'home.html', {'products':products})
 
 
-
+def offers(request):
+    # Fetch only products that are marked as offers
+    products = Product.objects.filter(is_offer=True)
+    return render(request, 'offers.html', {'products': products})
 
 def about(request):
     return render(request,'about.html')
@@ -82,15 +121,16 @@ def login_page(request):
     if request.method == "POST":
         email = request.POST.get('email')
         password = request.POST.get('password')
+        user_obj = User.objects.filter(email=email).first()
         
-        # Check if a user with the provided username exists
-        if not User.objects.filter(email=email).exists():
+        # Check if a user with the provided email exists
+        if not user_obj:
             # Display an error message if the username does not exist
-            messages.error(request, 'Invalid Username')
+            messages.error(request, 'Invalid Email')
             return redirect('/login/')
         
-        # Authenticate the user with the provided username and password
-        user = authenticate(email=email, password=password)
+        # Authenticate the user with the internal username and password
+        user = authenticate(username=user_obj.username, password=password)
         
         if user is None:
             # Display an error message if authentication fails (invalid password)
@@ -121,13 +161,14 @@ def register_view(request):
             return redirect('register')
 
         # Name validation
-        if not firstname.isalpha() or not lastname.isalpha() or not email.isalpha():
+        if not firstname.isalpha() or not lastname.isalpha():
             messages.error(request, 'Names must contain only letters.')
             return redirect('register')
 
 
         # Save user securely
         User.objects.create_user(
+            username=email,
             email=email,
             password=password,
             first_name=firstname,
@@ -135,7 +176,7 @@ def register_view(request):
         )
 
         messages.success(request, 'Registration successful!')
-        return redirect('login')
+        return redirect('/login/')
 
     # For GET request, render the registration form
     return render(request, 'register.html')
@@ -143,4 +184,4 @@ def register_view(request):
 def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out.")
-    return redirect('login_page')
+    return redirect('/login/')

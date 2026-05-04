@@ -1,64 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <title>Registration Form</title>
-</head>
-<body>
-    <div class="container mt-5">
-        <!-- Registration form -->
-        <form class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data">
-            {% csrf_token %}  <!-- CSRF token for security -->
+{% extends 'base.html' %}
+{% load socialaccount %}
 
-            <!-- Registration form heading -->
-            <h1 style="text-align: center;"><span style="color: green;">Register</span></h1>
-           
-            <hr>
+{% block title %}Register | MyShop{% endblock %}
 
-            <!-- Display error/success messages -->
-          {% if messages %}
-  {% for message in messages %}
-    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}" role="alert">
-      {{ message }}
+{% block content %}
+<div class="row justify-content-center align-items-center mt-5">
+    <div class="col-md-6">
+        <div class="glass-card p-5">
+            <h3 class="text-center fw-bold mb-4">Create an Account</h3>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="first_name" class="form-label text-muted fw-semibold small">First Name</label>
+                        <input type="text" class="form-control form-control-lg rounded-3" id="first_name" name="first_name" placeholder="John" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="last_name" class="form-label text-muted fw-semibold small">Last Name</label>
+                        <input type="text" name="last_name" class="form-control form-control-lg rounded-3" id="last_name" placeholder="Doe" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label text-muted fw-semibold small">Email Address</label>
+                    <input type="email" class="form-control form-control-lg rounded-3" name="email" id="email" placeholder="name@example.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label text-muted fw-semibold small">Password</label>
+                    <input type="password" class="form-control form-control-lg rounded-3" name="password" id="password" placeholder="••••••••" required>
+                    <div class="form-text small">Must include uppercase, lowercase, digit, and special character.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-semibold shadow-sm mb-3">Sign Up</button>
+            </form>
+            
+            <div class="text-center position-relative my-4">
+                <hr>
+                <span class="position-absolute top-50 start-50 translate-middle px-3 text-muted small bg-white rounded-pill">OR</span>
+            </div>
+            
+            <a href="{% provider_login_url 'google' %}" class="btn btn-outline-dark btn-lg w-100 rounded-pill fw-semibold mb-3">
+                <i class="fa-brands fa-google text-danger me-2"></i> Sign up with Google
+            </a>
+
+            <p class="text-center text-muted small mb-0">Already have an account? <a href="{% url 'login_page' %}" class="text-primary text-decoration-none fw-semibold">Sign In</a></p>
+        </div>
     </div>
-  {% endfor %}
-{% endif %}
-
-         
-            <div class="form-group">
-                <label for="exampleInputEmail1">First name</label>
-                <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
-                    placeholder="Enter First name" name="first_name" required>
-            </div>
-
-            <!-- Last Name input field -->
-            <div class="form-group">
-                <label for="exampleInputEmail1">Last name</label>
-                <input type="text" name="last_name" class="form-control" id="exampleInputEmail1"
-                    aria-describedby="emailHelp" placeholder="Enter Last name" required>
-            </div>
-
-            <!-- Username input field -->
-            <div class="form-group">
-                <label for="exampleInputEmail1">email</label>
-                <input type="text" class="form-control" name="username" id="exampleInputEmail1"
-                    aria-describedby="emailHelp" placeholder="Enter email" required>
-            </div>
-
-            <!-- Password input field -->
-            <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" class="form-control" name="password" id="exampleInputPassword1"
-                    placeholder="Password" required>
-            </div>
-
-            <p>Already have an account <a href="/login/">Login</a> </p>
-
-         
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-</body>
-</html>
+</div>
+{% endblock %}
